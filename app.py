@@ -198,7 +198,7 @@ def calistir_tahmin(
         plt.ylabel('ROAS Değeri', fontsize=12)
         plt.grid(True, linestyle='--', which='both', alpha=0.6) 
         
-        plt.text(0.735, 0.065, f"Tahmin Aralığı: {baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+        plt.text(0.735, 0.065, f"M/D/Y Tahmin Aralığı: {baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         plt.text(0.82, 0.030, f"Bölge: {tahmin_bolgesi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1.0))
