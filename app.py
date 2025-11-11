@@ -189,7 +189,7 @@ def calistir_tahmin(
             
             plt.annotate(f'{(val_trend * 100):.2f}%', (x_coord, val_trend), textcoords="offset points", xytext=trend_offset, ha='center', fontsize=8, color='green')
             if val_pred is not None:
-                plt.annotate(f'{(val_pred * 100):.2f}%', (x_coord, val_pred), textcoords="offset points", xytext=pred_offset, ha='center', fontsize=8, color='red')
+                plt.annotate(f'{(val_pred * 100):.2f}%', (x_coord, val_pred), textcoords="offset points", xytext=pred_offset, ha='center', fontsize=8, color='black')
         
         plt.xscale('log')
         plt.xticks(ROAS_DAYS_NUMERIC, ROAS_DAYS_LABELS)
