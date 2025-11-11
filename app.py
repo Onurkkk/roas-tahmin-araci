@@ -186,7 +186,7 @@ def calistir_tahmin(
         plt.ylabel('ROAS Değeri', fontsize=12)
         plt.grid(True, linestyle='--', which='both', alpha=0.6) 
         
-        plt.text(0.60, 0.030, f"{baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+        plt.text(0.70, 0.030, f"{baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1.0))
         plt.axvline(x=PIVOT_DAY_DYNAMIC, color='gray', linestyle=':', label=f'Girdi/Tahmin Ayrımı (Gün {PIVOT_DAY_DYNAMIC})')
@@ -246,8 +246,8 @@ if __name__ == "__main__":
         uploaded_file = st.file_uploader("Tarihsel Veri CSV Dosyası (us11.csv)", type="csv")
         
         c1_1, c1_2 = st.columns(2)
-        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi (Opsiyonel)", "")
-        bitis_tarihi = c1_2.text_input("Bitiş Tarihi (Opsiyonel)", "")
+        baslangic_tarihi = c1_1.text_input("Bölge (Opsiyonel)", "")
+        bitis_tarihi = c1_2.text_input("Tarih Aralığı(Opsiyonel)", "")
         
         st.subheader("Kampanya ROAS Değerleri (Sözlük formatında)")
         st.info("Aşağıya istediğiniz kadar kampanya senaryosu ekleyebilirsiniz. Her kampanya adı eşsiz bir anahtar olmalıdır.")
