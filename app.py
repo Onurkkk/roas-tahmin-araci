@@ -223,13 +223,16 @@ if __name__ == "__main__":
     
     # --- YENİ VARSAYILAN GİRDİ FORMATI ---
     DEFAULT_MULTI_ROAS_INPUTS = """{
-    "Kampanya A (Hızlı Başlangıç)": {
+    "Network1": {
         1: 0.0700, 3: 0.1200, 7: 0.1800, 14: null, 30: null, 60: null, 90: null
     },
-    "Kampanya B (Yavaş Başlangıç)": {
+    "Network2": {
         1: 0.0500, 3: 0.0900, 7: 0.1400, 14: null, 30: null, 60: null, 90: null
     },
-    "Kampanya C (Varsayılan)": {
+    "Network3": {
+        1: 0.0647, 3: 0.1012, 7: 0.1653, 14: null, 30: null, 60: null, 90: null
+    },
+    "Network4": {
         1: 0.0647, 3: 0.1012, 7: 0.1653, 14: null, 30: null, 60: null, 90: null
     }
 }""".replace("null", "None")
