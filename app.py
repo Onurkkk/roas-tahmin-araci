@@ -44,14 +44,14 @@ def kur_modeli(file_buffer, original_filename):
         log_output.append(f"HATA (Model Kurulumu): {e}")
         return None, log_output
 
-# --- BLOK 3 & 4: TAHMİN FONKSİYONU (TAMAMEN YENİLENDİ) ---
+# --- BLOK 3 & 4: TAHMİN FONKSİYONU (DÜZELTİLDİ) ---
 def calistir_tahmin(
     p_modeli,
     model_type, 
     pivot_day, 
     velocity_weights_str, 
     dampening_factor, 
-    multi_roas_inputs_str, # <-- GİRDİ ADI DEĞİŞTİ
+    multi_roas_inputs_str, 
     baslangic_tarihi, 
     bitis_tarihi
 ):
@@ -66,7 +66,6 @@ def calistir_tahmin(
     
     try:
         # --- BLOK 4: GÖRSELLEŞTİRME (BAŞLANGIÇ) ---
-        # Döngüden önce ana grafiği ve tarihsel çizgiyi oluştur
         fig = plt.figure(figsize=(14, 9))
         
         # 1. Tarihsel Trend (Yeşil Çizgi)
@@ -74,7 +73,6 @@ def calistir_tahmin(
         smooth_roas = p(smooth_days) 
         plt.plot(smooth_days, smooth_roas, color='green', linestyle='-', linewidth=2, label='Tarihsel Trend Eğrisi (Tüm Veri)')
 
-        # Sadece tarihsel trendin etiketlerini ekle
         for i in range(len(ROAS_DAYS_LABELS)):
             x_coord = ROAS_DAYS_NUMERIC[i]
             val_trend = p(x_coord)
@@ -91,7 +89,6 @@ def calistir_tahmin(
             return None, log_output
 
         try:
-            # Artık birden fazla sözlük okuyoruz
             MULTI_ROAS_INPUTS = ast.literal_eval(multi_roas_inputs_str)
             log_output.append(f"ROAS Girdileri yüklendi: {len(MULTI_ROAS_INPUTS)} kampanya bulundu.")
         except Exception as e:
@@ -100,7 +97,6 @@ def calistir_tahmin(
 
         
         # --- ANA TAHMİN DÖNGÜSÜ ---
-        # enumerate kullanarak her kampanyaya bir renk indeksi (i) atayacağız
         for i, (campaign_name, known_roas_inputs) in enumerate(MULTI_ROAS_INPUTS.items()):
             
             log_output.append(f"\n--- TAHMİN #{i+1}: {campaign_name} ---")
@@ -109,10 +105,10 @@ def calistir_tahmin(
             PIVOT_DAY_DYNAMIC = pivot_day
             DAMPENING_FACTOR = dampening_factor
 
-            pivot_value = known_roas_inputs.get(PIVOT_DAY_DYNAMIC) # .get() kullanarak hata almayı engelle
+            pivot_value = known_roas_inputs.get(PIVOT_DAY_DYNAMIC)
             if pivot_value is None:
                 log_output.append(f"HATA: {campaign_name} için Pivot Günü ({PIVOT_DAY_DYNAMIC}) verisi 'None'. Bu kampanya atlanıyor.")
-                continue # Bu kampanyayı atla, sonrakiyle devam et
+                continue 
             
             log_output.append(f"Model Tipi: '{MODEL_TYPE}', Pivot Günü: d{PIVOT_DAY_DYNAMIC}, Girdi Değeri: {pivot_value:.4f}")
             prediction_days = [day for day in ROAS_DAYS_NUMERIC if day > PIVOT_DAY_DYNAMIC]
@@ -120,7 +116,6 @@ def calistir_tahmin(
             velocity_ratio = 1.0
             
             if MODEL_TYPE == "velocity":
-                # Hız hesabı (kampanyaya özel)
                 log_output.append(f"Ağırlıklı Hız Hesabı (Pivot d{PIVOT_DAY_DYNAMIC}):")
                 total_weighted_raw_ratio = 0.0
                 total_weight = 0.0
@@ -146,6 +141,11 @@ def calistir_tahmin(
                 else:
                     log_output.append("  > Uyarı: Hız testi için yeterli veri yok. 'pivot' moda geçildi.")
             
+            # --- BURASI DÜZELTİLDİ ---
+            # Hata veren `ideal_pivot_value` tanımı döngünün içine (olması gereken yere) eklendi.
+            ideal_pivot_value = p(PIVOT_DAY_DYNAMIC)
+            # --- DÜZELTME BİTTİ ---
+
             # Tahminler (kampanyaya özel)
             predictions = {}
             for day in prediction_days:
@@ -172,14 +172,9 @@ def calistir_tahmin(
                     plot_days.append(day)
                     plot_values.append(val)
             
-            # Her kampanya için listeden bir renk seç
             color = COLOR_CYCLE[i % len(COLOR_CYCLE)]
             
-            # Bu kampanyanın çizgisini, adı ile etiketleyerek çiz
             plt.plot(plot_days, plot_values, marker='s', markersize=4, linestyle='--', color=color, label=campaign_name)
-            
-            # Çoklu çizgilerde etiketler (siyah % değerleri) grafiği karıştıracağı için kaldırıldı.
-            # Sadece yeşil tarihsel trend etiketleri kaldı.
 
         # --- DÖNGÜ BİTTİ ---
 
@@ -196,7 +191,6 @@ def calistir_tahmin(
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1.0))
         plt.axvline(x=PIVOT_DAY_DYNAMIC, color='gray', linestyle=':', label=f'Girdi/Tahmin Ayrımı (Gün {PIVOT_DAY_DYNAMIC})')
         
-        # Lejantı (hangi rengin hangi kampanya olduğunu) göster
         plt.legend(loc='upper left') 
         log_output.append(f"\nGrafik başarıyla oluşturuldu. {len(MULTI_ROAS_INPUTS)} kampanya çizildi.")
         
@@ -206,7 +200,7 @@ def calistir_tahmin(
     return fig, log_output
 
 
-# --- BLOK 5: STREAMLIT ARAYÜZÜ (GÜNCELLENDİ) ---
+# --- BLOK 5: STREAMLIT ARAYÜZÜ ---
 def generate_auto_weights(pivot_day):
     """
     Seçilen pivot güne göre "Yakınlık Kuralı"nı kullanarak
@@ -254,14 +248,13 @@ if __name__ == "__main__":
         
         st.subheader("Kampanya ROAS Değerleri (Sözlük formatında)")
         st.info("Aşağıya istediğiniz kadar kampanya senaryosu ekleyebilirsiniz. Her kampanya adı eşsiz bir anahtar olmalıdır.")
-        # --- GİRDİ METİN KUTUSU GÜNCELLENDİ ---
+        
         multi_roas_inputs_str = st.text_area(
             "Kampanya Veri Girdileri", 
             DEFAULT_MULTI_ROAS_INPUTS, 
             height=300, 
             label_visibility="collapsed"
         )
-        # --- GÜNCELLEME BİTTİ ---
 
     with col2:
         st.header("2. Model Ayarları")
@@ -291,18 +284,16 @@ if __name__ == "__main__":
                 file_buffer = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
                 p_modeli, model_log = kur_modeli(file_buffer, uploaded_file.name) 
 
-                # --- ÇAĞRI GÜNCELLENDİ ---
                 fig, tahmin_log = calistir_tahmin(
                     p_modeli=p_modeli,
                     model_type=model_type,
                     pivot_day=pivot_day,
                     velocity_weights_str=velocity_weights_string_auto,
                     dampening_factor=dampening_factor,
-                    multi_roas_inputs_str=multi_roas_inputs_str, # <-- GÜNCELLENDİ
+                    multi_roas_inputs_str=multi_roas_inputs_str,
                     baslangic_tarihi=baslangic_tarihi,
                     bitis_tarihi=bitis_tarihi
                 )
-                # --- GÜNCELLEME BİTTİ ---
             
             st.header("3. Sonuçlar")
             
