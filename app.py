@@ -314,3 +314,16 @@ if __name__ == "__main__":
             full_log = model_log + tahmin_log
             
             out_col1, out_col2 = st.columns([1, 2])
+            
+            with out_col1:
+                st.subheader("📝 Model Logları")
+                st.text("\n".join(full_log))
+                
+            with out_col2:
+                st.subheader("📊 Tahmin Grafiği")
+                if fig:
+                    st.pyplot(fig)
+                else:
+                    st.error("Grafik oluşturulamadı. Logları kontrol edin.")
+        else:
+            st.error("Lütfen bir tarihsel veri (CSV) dosyası yükleyin.")
