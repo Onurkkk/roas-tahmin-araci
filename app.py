@@ -198,7 +198,7 @@ def calistir_tahmin(
         plt.ylabel('ROAS Değeri', fontsize=12)
         plt.grid(True, linestyle='--', which='both', alpha=0.6) 
         
-        plt.text(0.735, 0.060, f"Tahmin Aralığı: {baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+        plt.text(0.735, 0.065, f"Tahmin Aralığı: {baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         plt.text(0.82, 0.030, f"Bölge: {tahmin_bolgesi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1.0))
@@ -257,10 +257,10 @@ if __name__ == "__main__":
         
         uploaded_file = st.file_uploader("Tarihsel Veri CSV Dosyası (us11.csv)", type="csv")
         
-        tahmin_bolgesi = st.text_input("Tahmin Bölgesi", "Superlive android us")
+        tahmin_bolgesi = st.text_input("Tahmin Bölgesi", "")
         c1_1, c1_2 = st.columns(2)
-        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi", "10/01/2025")
-        bitis_tarihi = c1_2.text_input("Bitiş Tarihi", "10/27/2025")
+        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi", "")
+        bitis_tarihi = c1_2.text_input("Bitiş Tarihi", "")
         
         save_directory = st.text_input("Grafik Kayıt Yolu (Opsiyonel)", "/Users/onurkeklikscorp/tahmin")
         
