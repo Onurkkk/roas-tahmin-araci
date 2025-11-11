@@ -257,10 +257,10 @@ if __name__ == "__main__":
         
         uploaded_file = st.file_uploader("Tarihsel Veri CSV Dosyası (m/d/y(dailydesc)-roas1-roas3-roas7-roas14-roas30-roas60-roas90)", type="csv")
         
-        tahmin_bolgesi = st.text_input("Tahmin Bölgesi", "")
+        tahmin_bolgesi = st.text_input("Tahmin Bölgesi (Opsiyonel)", "")
         c1_1, c1_2 = st.columns(2)
-        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi", "")
-        bitis_tarihi = c1_2.text_input("Bitiş Tarihi", "")
+        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi (Opsiyonel)", "")
+        bitis_tarihi = c1_2.text_input("Bitiş Tarihi (Opsiyonel)", "")
         
         save_directory = st.text_input("Grafik Kayıt Yolu (Opsiyonel)", "")
         
