@@ -78,7 +78,7 @@ def calistir_tahmin(
             val_trend = p(x_coord)
             plt.annotate(f'{(val_trend * 100):.2f}%', (x_coord, val_trend), 
                          textcoords="offset points", xytext=(0, 7), 
-                         ha='center', fontsize=8, color='green')
+                         ha='center', fontsize=8, color='black')
 
         # --- GİRDİLERİ PARÇALA ---
         try:
