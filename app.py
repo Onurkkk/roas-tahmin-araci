@@ -275,7 +275,7 @@ if __name__ == "__main__":
         pivot_day_options = [day for day in ROAS_DAYS_NUMERIC if day <= 30]
         pivot_day = st.selectbox("Pivot Günü (Son Veri Günü)", pivot_day_options, index=2)
         
-        dampening_factor = st.slider("Sönümleme (Dampening) Faktörü", 0.0, 1.0, 0.5, 0.05, help="0.0 = Hız ayarı kapalı. 1.0 = Tam agresif. 0.5 = Önerilen.")
+        dampening_factor = st.slider("Sönümleme (Dampening) Faktörü", 0.0, 1.0, 1.0, 0.05, help="0.0 = Hız ayarı kapalı. 1.0 = Tam agresif. 0.5 = Önerilen.")
         
         st.subheader("Otomatik Hesaplanan Hız Ağırlıkları")
         st.info(f"`Pivot Günü` {pivot_day} olarak seçildi. Ağırlıklar 'Doğrusal Puanlama' ile otomatik hesaplandı.")
