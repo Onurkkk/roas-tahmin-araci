@@ -259,8 +259,8 @@ if __name__ == "__main__":
         uploaded_file = st.file_uploader("Tarihsel Veri CSV Dosyası (us11.csv)", type="csv")
         
         c1_1, c1_2 = st.columns(2)
-        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi (Opsiyonel)", "")
-        bitis_tarihi = c1_2.text_input("Bitiş Tarihi (Opsiyonel)", "")
+        baslangic_tarihi = c1_1.text_input("Bölge (Opsiyonel)", "")
+        bitis_tarihi = c1_2.text_input("Tarih Aralığı (Opsiyonel)", "")
         
         # --- 3. GÜNCELLEME: KAYIT YOLU METİN KUTUSU GERİ EKLENDİ ---
         save_directory = st.text_input("Grafik Kayıt Yolu (Opsiyonel)", "", help="Grafiğin kaydedileceği klasör yolu. Örn: /Users/onurkeklikscorp/tahmin")
