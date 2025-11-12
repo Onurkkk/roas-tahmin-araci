@@ -12,7 +12,6 @@ import io
 ROAS_COLS = ['ROAS 1', 'ROAS 3', 'ROAS 7', 'ROAS 14', 'ROAS 30', 'ROAS 60', 'ROAS 90']
 ROAS_DAYS_NUMERIC = np.array([1, 3, 7, 14, 30, 60, 90])
 ROAS_DAYS_LABELS = ['Gün 1', 'Gün 3', 'Gün 7', 'Gün 14', 'Gün 30', 'Gün 60', 'Gün 90']
-# Çoklu çizgiler için renk döngüsü
 COLOR_CYCLE = ['#FF0000', '#0000FF', '#FF8000', '#800080', '#A52A2A', '#00FFFF', '#FF00FF'] # Kırmızı, Mavi, Turuncu, Mor, Kahverengi, Cyan, Magenta
 
 print("Kütüphaneler başarıyla yüklendi.")
@@ -44,7 +43,7 @@ def kur_modeli(file_buffer, original_filename):
         log_output.append(f"HATA (Model Kurulumu): {e}")
         return None, log_output
 
-# --- BLOK 3 & 4: TAHMİN FONKSİYONU (DÜZELTİLDİ) ---
+# --- BLOK 3 & 4: TAHMİN FONKSİYONU (GÜNCELLENDİ) ---
 def calistir_tahmin(
     p_modeli,
     model_type, 
@@ -53,7 +52,8 @@ def calistir_tahmin(
     dampening_factor, 
     multi_roas_inputs_str, 
     baslangic_tarihi, 
-    bitis_tarihi
+    bitis_tarihi,
+    save_directory # <-- 1. GÜNCELLEME: Parametre geri eklendi
 ):
     log_output = []
     fig = None 
@@ -78,7 +78,7 @@ def calistir_tahmin(
             val_trend = p(x_coord)
             plt.annotate(f'{(val_trend * 100):.2f}%', (x_coord, val_trend), 
                          textcoords="offset points", xytext=(0, 7), 
-                         ha='center', fontsize=8, color='black')
+                         ha='center', fontsize=8, color='green')
 
         # --- GİRDİLERİ PARÇALA ---
         try:
@@ -97,12 +97,13 @@ def calistir_tahmin(
 
         
         # --- ANA TAHMİN DÖNGÜSÜ ---
+        PIVOT_DAY_DYNAMIC = pivot_day # Pivot günü döngüden önce ayarla
+        
         for i, (campaign_name, known_roas_inputs) in enumerate(MULTI_ROAS_INPUTS.items()):
             
             log_output.append(f"\n--- TAHMİN #{i+1}: {campaign_name} ---")
             
             MODEL_TYPE = model_type
-            PIVOT_DAY_DYNAMIC = pivot_day
             DAMPENING_FACTOR = dampening_factor
 
             pivot_value = known_roas_inputs.get(PIVOT_DAY_DYNAMIC)
@@ -141,10 +142,7 @@ def calistir_tahmin(
                 else:
                     log_output.append("  > Uyarı: Hız testi için yeterli veri yok. 'pivot' moda geçildi.")
             
-            # --- BURASI DÜZELTİLDİ ---
-            # Hata veren `ideal_pivot_value` tanımı döngünün içine (olması gereken yere) eklendi.
             ideal_pivot_value = p(PIVOT_DAY_DYNAMIC)
-            # --- DÜZELTME BİTTİ ---
 
             # Tahminler (kampanyaya özel)
             predictions = {}
@@ -186,7 +184,7 @@ def calistir_tahmin(
         plt.ylabel('ROAS Değeri', fontsize=12)
         plt.grid(True, linestyle='--', which='both', alpha=0.6) 
         
-        plt.text(0.70, 0.030, f"{baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+        plt.text(0.01, 0.98, f"Tahmin Aralığı: {baslangic_tarihi} - {bitis_tarihi}", transform=plt.gca().transAxes, fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
         
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1.0))
         plt.axvline(x=PIVOT_DAY_DYNAMIC, color='gray', linestyle=':', label=f'Girdi/Tahmin Ayrımı (Gün {PIVOT_DAY_DYNAMIC})')
@@ -194,13 +192,33 @@ def calistir_tahmin(
         plt.legend(loc='upper left') 
         log_output.append(f"\nGrafik başarıyla oluşturuldu. {len(MULTI_ROAS_INPUTS)} kampanya çizildi.")
         
+        # --- 2. GÜNCELLEME: KAYDETME BLOĞU GERİ EKLENDİ ---
+        if save_directory: # Kullanıcı bir yol girdiyse
+            try:
+                # Tarihleri dosya adı için güvenli hale getir
+                safe_baslangic = baslangic_tarihi.replace('/', '-') if baslangic_tarihi else "TarihYok"
+                safe_bitis = bitis_tarihi.replace('/', '-') if bitis_tarihi else "TarihYok"
+                
+                dinamik_dosya_adi = f"Multi_Tahmin_Pivot{PIVOT_DAY_DYNAMIC}_{safe_baslangic}_to_{safe_bitis}.png"
+                
+                # Dizinin var olduğundan emin ol
+                os.makedirs(save_directory, exist_ok=True)
+                save_path = os.path.join(save_directory, dinamik_dosya_adi)
+                
+                plt.savefig(save_path)
+                log_output.append(f"Grafik başarıyla şu yola kaydedildi: {save_path}")
+            
+            except Exception as e:
+                log_output.append(f"HATA (Grafik Kaydetme): {e}")
+        # --- KAYDETME BLOĞU BİTTİ ---
+        
     except Exception as e:
         log_output.append(f"HATA (Blok 3/4): Tahmin veya grafik oluşturulamadı: {e}")
         
     return fig, log_output
 
 
-# --- BLOK 5: STREAMLIT ARAYÜZÜ ---
+# --- BLOK 5: STREAMLIT ARAYÜZÜ (GÜNCELLENDİ) ---
 def generate_auto_weights(pivot_day):
     """
     Seçilen pivot güne göre "Yakınlık Kuralı"nı kullanarak
@@ -221,22 +239,17 @@ if __name__ == "__main__":
     st.set_page_config(layout="wide")
     st.title("📈 Çoklu Senaryo ROAS Tahmin Aracı (Velocity Model)")
     
-    # --- YENİ VARSAYILAN GİRDİ FORMATI ---
     DEFAULT_MULTI_ROAS_INPUTS = """{
-    "Network1": {
+    "Kampanya A (Hızlı Başlangıç)": {
         1: 0.0700, 3: 0.1200, 7: 0.1800, 14: null, 30: null, 60: null, 90: null
     },
-    "Network2": {
+    "Kampanya B (Yavaş Başlangıç)": {
         1: 0.0500, 3: 0.0900, 7: 0.1400, 14: null, 30: null, 60: null, 90: null
     },
-    "Network3": {
-        1: 0.0647, 3: 0.1012, 7: 0.1653, 14: null, 30: null, 60: null, 90: null
-    },
-    "Network4": {
+    "Kampanya C (Varsayılan)": {
         1: 0.0647, 3: 0.1012, 7: 0.1653, 14: null, 30: null, 60: null, 90: null
     }
 }""".replace("null", "None")
-    # --- GÜNCELLEME BİTTİ ---
 
     col1, col2 = st.columns(2)
 
@@ -246,8 +259,12 @@ if __name__ == "__main__":
         uploaded_file = st.file_uploader("Tarihsel Veri CSV Dosyası (us11.csv)", type="csv")
         
         c1_1, c1_2 = st.columns(2)
-        baslangic_tarihi = c1_1.text_input("Bölge (Opsiyonel)", "")
-        bitis_tarihi = c1_2.text_input("Tarih Aralığı(Opsiyonel)", "")
+        baslangic_tarihi = c1_1.text_input("Başlangıç Tarihi (Opsiyonel)", "")
+        bitis_tarihi = c1_2.text_input("Bitiş Tarihi (Opsiyonel)", "")
+        
+        # --- 3. GÜNCELLEME: KAYIT YOLU METİN KUTUSU GERİ EKLENDİ ---
+        save_directory = st.text_input("Grafik Kayıt Yolu (Opsiyonel)", "", help="Grafiğin kaydedileceği klasör yolu. Örn: /Users/onurkeklikscorp/tahmin")
+        # --- GÜNCELLEME BİTTİ ---
         
         st.subheader("Kampanya ROAS Değerleri (Sözlük formatında)")
         st.info("Aşağıya istediğiniz kadar kampanya senaryosu ekleyebilirsiniz. Her kampanya adı eşsiz bir anahtar olmalıdır.")
@@ -295,7 +312,8 @@ if __name__ == "__main__":
                     dampening_factor=dampening_factor,
                     multi_roas_inputs_str=multi_roas_inputs_str,
                     baslangic_tarihi=baslangic_tarihi,
-                    bitis_tarihi=bitis_tarihi
+                    bitis_tarihi=bitis_tarihi,
+                    save_directory=save_directory # <-- 4. GÜNCELLEME: Parametre fonksiyona geçirildi
                 )
             
             st.header("3. Sonuçlar")
